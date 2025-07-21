@@ -43,7 +43,7 @@ class CartModalView(CartMixin, View):
 class AddToCartView(CartMixin, View):
     @transaction.atomic
     def post(self, request, slug):
-        cart = self.get_cart()
+        cart = self.get_cart(request)
         product = get_object_or_404(Product, slug=slug)
 
         form = AddToCartForm(request.POST, product=product)
