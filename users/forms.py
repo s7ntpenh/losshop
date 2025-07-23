@@ -26,21 +26,21 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'password1', 'password2')
 
-
+    
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('This email is already in use.')
         return email
     
-    
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.username = None
         if commit:
             user.save()
         return user
-
+    
 
 class CustomUserLoginForm(AuthenticationForm):
     username = forms.CharField(label="Email", widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'EMAIL'}))
@@ -49,7 +49,7 @@ class CustomUserLoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'PASSWORD'})
     )
 
-
+     
     def clean(self):
         email = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
@@ -59,9 +59,9 @@ class CustomUserLoginForm(AuthenticationForm):
             if self.user_cache is None:
                 raise forms.ValidationError('Invalid email or password.')
             elif not self.user_cache.is_active():
-                raise forms.ValidationError('This account is in active.')
+                raise forms.ValidationError('This account is inactive.')
         return self.cleaned_data
-    
+
 
 class CustomUserUpdateForm(forms.ModelForm):
     phone = forms.CharField(
@@ -88,7 +88,7 @@ class CustomUserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email', 'company', 
-                  'address1', 'address2', 'city', 'country', 
+                  'address1', 'address2', 'city', 'country',
                   'province', 'postal_code', 'phone')
         widgets = {
             'company': forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'COMPANY'}),
@@ -99,12 +99,12 @@ class CustomUserUpdateForm(forms.ModelForm):
             'province': forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'PROVINCE'}),
             'postal_code': forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'POSTAL CODE'}),
         }
-
-
+        
+    
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email and User.objects.filter(email=email).exclude(id=self.instance.id).exists():
-            raise forms.ValidationError('This email is already in use.')
+            raise forms.ValidationError('This email is alredy in use.')
         return email
     
 
@@ -112,7 +112,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         cleaned_data = super().clean()
         if not cleaned_data.get('email'):
             cleaned_data['email'] = self.instance.email
-        for field in ['first_name', 'last_name', 'email', 'company', 'address1', 'address2', 'city', 'country', 
+        for field in ['company', 'address1', 'address2', 'city', 'country',
                       'province', 'postal_code', 'phone']:
             if cleaned_data.get(field):
                 cleaned_data[field] = strip_tags(cleaned_data[field])

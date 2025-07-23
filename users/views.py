@@ -30,9 +30,9 @@ def login_view(request):
             user = form.get_user()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('main:index')
-        else:
-            form = CustomUserLoginForm()
-        return render(request, 'users/login.html', {'form': form})
+    else:
+        form = CustomUserLoginForm()
+    return render(request, 'users/login.html', {'form': form})
     
 
 @login_required(login_url='/users/login')
@@ -41,18 +41,18 @@ def profile_view(request):
         form = CustomUserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            if request.headers.get('HX-Request'):
+            if request.headers.get("HX-Request"):
                 return HttpResponse(headers={'HX-Redirect': reverse('users:profile')})
             return redirect('users:profile')
     else:
         form = CustomUserUpdateForm(instance=request.user)
-        
+
     recommended_products = Product.objects.all().order_by('id')[:3]
 
     return TemplateResponse(request, 'users/profile.html', {
         'form': form,
         'user': request.user,
-        'recommended_products': recommended_products,
+        'recommended_products': recommended_products
     })
 
 
@@ -65,13 +65,13 @@ def account_details(request):
 @login_required(login_url='/users/login')
 def edit_account_details(request):
     form = CustomUserUpdateForm(instance=request.user)
-    return TemplateResponse(request, 'users/partials/edit_account_details.html', 
+    return TemplateResponse(request, 'users/partials/edit_account_details.html',
                             {'user': request.user, 'form': form})
 
 
 @login_required(login_url='/users/login')
 def update_account_details(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = CustomUserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             user = form.save(commit=False)
@@ -85,10 +85,11 @@ def update_account_details(request):
         else:
             return TemplateResponse(request, 'users/partials/edit_account_details.html', {'user': request.user, 'form': form})
     if request.headers.get('HX-Request'):
-        return HttpResponse(headers={'HX-Redirect': reverse('users:profile')})
+        return HttpResponse(headers={'HX-Redirect': reverse('user:profile')})
     return redirect('users:profile')
 
-def logout(request):
+
+def logout_view(request):
     logout(request)
     if request.headers.get('HX-Request'):
         return HttpResponse(headers={'HX-Redirect': reverse('main:index')})
