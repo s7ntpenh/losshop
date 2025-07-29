@@ -4,19 +4,18 @@ from main.models import Product, ProductSize
 
 
 class Order(models.Model):
-    STATUS_CHOISES = (
+    STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('processing', 'Processing'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
-
     )
-    PAYMENT_PROVIDER_CHOISES = (
+    PAYMENT_PROVIDER_CHOICES = (
         ('stripe', 'Stripe'),
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name='orders')
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -31,8 +30,8 @@ class Order(models.Model):
     phone = models.CharField(max_length=15, blank=True, null=True)
     special_instructions = models.TextField(blank=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOISES, default='pending')
-    payment_provider = models.CharField(max_length=20, choices=PAYMENT_PROVIDER_CHOISES, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_provider = models.CharField(max_length=20, choices=PAYMENT_PROVIDER_CHOICES, null=True, blank=True)
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -40,7 +39,7 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.email}"
-    
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
