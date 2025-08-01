@@ -14,6 +14,8 @@ from django.shortcuts import get_object_or_404
 from payment.views import create_stripe_checkout_session
 from decimal import Decimal
 import logging
+from django.contrib import messages
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +28,13 @@ class CheckoutView(CartMixin, View):
 
         if cart.total_items == 0:
             logger.warning("Cart is empty, redirecting to cart page")
+            messages.info(request, "Your cart was empty - please add something before checkout.")
             if request.headers.get('HX-Request'):
-                return TemplateResponse(request, 'orders/empty_cart.html', {'message': 'Your cart is empty'})
-            return redirect('cart:cart_modal')
+                response = HttpResponse(status=200)
+                response['HX-Redirect'] = reverse('main:index')
+                return response
+            return redirect('main:index')
+
 
         total_price = cart.subtotal
         logger.debug(f"Total price: {total_price}")
@@ -52,10 +58,13 @@ class CheckoutView(CartMixin, View):
 
         if cart.total_items == 0:
             logger.warning("Cart is empty, redirecting to cart page")
+            messages.info(request, "Your cart was empty - please add something before checkout.")
             if request.headers.get('HX-Request'):
-                return TemplateResponse(request, 'orders/empty_cart.html', {'message': 'Your cart is empty'})
-            return redirect('cart:cart_modal')
-
+                response = HttpResponse(status=200)
+                response['HX-Redirect'] = reverse('main:index')
+                return response
+            return redirect('main:index')
+        
         if not payment_provider or payment_provider not in ['stripe', 'heleket']:
             logger.error(f"Invalid or missing payment provider: {payment_provider}")
             context = {

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -9,6 +9,7 @@ from .forms import CustomUserCreationForm, CustomUserLoginForm, \
 from .models import CustomUser
 from django.contrib import messages
 from main.models import Product
+from orders.models import Order
 
 
 def register(request):
@@ -49,11 +50,24 @@ def profile_view(request):
 
     recommended_products = Product.objects.all().order_by('id')[:3]
 
-    return TemplateResponse(request, 'users/profile.html', {
+    latest_order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+    all_orders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+    if latest_order:
+        latest_item = latest_order.items.first()
+        latest_name = latest_item.product.name if latest_item else None
+    else:
+        latest_name = None
+
+    context = {
         'form': form,
         'user': request.user,
-        'recommended_products': recommended_products
-    })
+        'recommended_products': recommended_products,
+        'latest_order': latest_order,
+        'latest_order_name': latest_name,
+        'orders': all_orders,
+    }
+    return TemplateResponse(request, 'users/profile.html', context)
 
 
 @login_required(login_url='/users/login')
@@ -94,3 +108,15 @@ def logout_view(request):
     if request.headers.get('HX-Request'):
         return HttpResponse(headers={'HX-Redirect': reverse('main:index')})
     return redirect('main:index')
+
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return TemplateResponse(request, 'users/partials/order_history.html', {'orders': orders})
+
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return TemplateResponse(request, 'users/partials/order_detail.html', {'order': order})

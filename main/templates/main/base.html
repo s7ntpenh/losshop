@@ -35,7 +35,7 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background-color: black;
+            background-color: white;
         }
 
         .nav-link.active::after {
@@ -45,7 +45,7 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background-color: black;
+            background-color: white;
         }
 
         /* Mobile menu styles */
@@ -66,7 +66,7 @@
             display: block;
             width: 25px;
             height: 2px;
-            background-color: black;
+            background-color: white;
             margin: 5px 0;
             transition: 0.3s;
         }
@@ -108,154 +108,201 @@
         }
     </style>
 </head>
-<body class="bg-white">
-    <!-- Mobile Menu Overlay -->
-    <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu fixed top-0 left-0 w-80 h-full bg-white z-50 md:hidden shadow-lg">
+
+    <body class="bg-black text-white relative">
+        {% if messages %}
+            <!-- Notification container -->
+            <div id="flash-messages" class="fixed top-4 right-4 space-y-2 z-50">
+            {% for message in messages %}
+                <div
+                class="flash-message transform translate-x-full opacity-0 transition-all duration-500 ease-out
+                        bg-black text-white px-4 py-2 rounded shadow"
+                >
+                {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const container = document.getElementById('flash-messages');
+                if (!container) return;
+
+                // Find all messages
+                const messages = Array.from(container.children);
+
+                // Immediately after insertion, we make them move out from the right edge
+                setTimeout(() => {
+                messages.forEach(el => {
+                    el.classList.remove('translate-x-full', 'opacity-0');
+                    el.classList.add('translate-x-0', 'opacity-100');
+                });
+                }, 10);
+
+                // After 3 seconds - start the reverse animation of hiding
+                setTimeout(() => {
+                messages.forEach(el => {
+                    el.classList.remove('translate-x-0', 'opacity-100');
+                    el.classList.add('translate-x-full', 'opacity-0');
+                });
+                // After the animation is finished (duration=500ms) we remove the container from the DOM
+                setTimeout(() => container.remove(), 500);
+                }, 3000);
+            });
+            </script>
+        {% endif %}
+
+
+    <!-- Fixed background video -->
+    <video autoplay muted loop playsinline
+            class="fixed inset-0 w-screen h-screen object-cover z-[-1]">
+        <source src="/media/products/main/bg-vid3.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="relative z-10">
+
+        <!-- Mobile Menu Overlay -->
+        <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu"
+            class="mobile-menu fixed top-0 left-0 w-80 h-full bg-black bg-opacity-90 z-50 md:hidden shadow-lg text-white">
         <div class="p-6">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-lg font-bold tracking-tight text-left">
-                    ENFANTS RICHES <br>
-                    DÉPRIMÉS
-                </h2>
-                <button id="closeMenu" class="hamburger active">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+            <h2 class="text-lg font-bold tracking-tight">ENFANTS RICHES <br> DÉPRIMÉS</h2>
+            <button id="closeMenu" class="hamburger active">
+                <span></span><span></span><span></span>
+            </button>
             </div>
-            
             <nav class="space-y-6">
-                <a href="{% url 'main:index' %}" 
-                   hx-get="{% url 'main:index' %}" 
-                   hx-target="#main-content" 
-                   hx-push-url="true"
-                   class="mobile-nav-link block text-lg font-medium text-gray-900 hover:text-gray-700 py-2 border-b border-gray-200">
-                   HOME
+            <a href="{% url 'main:index' %}"
+                hx-get="{% url 'main:index' %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2">
+                HOME
+            </a>
+            {% for category in categories %}
+            <a href="{% url 'main:catalog' category.slug %}"
+                hx-get="{% url 'main:catalog' category.slug %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2 {% if current_category == category.slug %}active{% endif %}">
+                {{ category.name|upper }}
+            </a>
+            {% endfor %}
+            </nav>
+            <div class="mt-8 space-y-4">
+            <a href="#" class="block text-sm font-medium py-2">SEARCH</a>
+            <a href="{% url 'users:profile' %}"
+                hx-get="{% url 'users:profile' %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="block text-sm font-medium uppercase py-2">
+                ACCOUNT
+            </a>
+            <a href="#" id="mobileCart" class="block text-sm font-medium hover:text-gray-300 py-2">
+                CART (0)
+            </a>
+            </div>
+        </div>
+        </div>
+
+        <!-- Header -->
+        <header class="sticky top-0 bg-black bg-opacity-45 text-white">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+            <!-- Mobile Menu Button -->
+            <button id="menuToggle" class="hamburger md:hidden text-white">
+                <span></span><span></span><span></span>
+            </button>
+
+            <!-- Logo -->
+            <div class="flex-shrink-0">
+                <a href="{% url 'main:index' %}"
+                hx-get="{% url 'main:index' %}"
+                hx-target="#main-content" hx-push-url="true">
+                <h1 class="text-sm sm:text-lg font-bold tracking-tight">
+                    ENFANTS RICHES <br> DÉPRIMÉS
+                </h1>
                 </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-8">
                 {% for category in categories %}
-                <a href="{% url 'main:catalog' category.slug %}" 
-                   hx-get="{% url 'main:catalog' category.slug %}" 
-                   hx-target="#main-content" 
-                   hx-push-url="true"
-                   class="mobile-nav-link block text-lg font-medium text-gray-900 hover:text-gray-700 py-2 border-b border-gray-200 {% if current_category == category.slug %}active{% endif %}">
-                   {{ category.name|upper }}
+                <a href="{% url 'main:catalog' category.slug %}"
+                hx-get="{% url 'main:catalog' category.slug %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="nav-link text-sm font-medium hover:text-gray-300 {% if current_category == category.slug %}active{% endif %}">
+                {{ category.name|upper }}
                 </a>
                 {% endfor %}
             </nav>
-            
-            <div class="mt-8 space-y-4">
-                <a href="#" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">SEARCH</a>
-                <a href="{% url 'users:profile' %}" 
-                hx-get="{% url 'users:profile' %}" 
-                hx-target="#main-content" 
-                hx-push-url="true"
+
+            <!-- Right side links -->
+            <div class="hidden md:flex items-center space-x-6">
+                <div class="relative" id="mobile-search-wrapper">
+                    <button id="mobile-search-toggle" 
+                            hx-get="{% url 'main:catalog_all' %}?show_search=true" 
+                            hx-target="#mobile-search-wrapper" 
+                            hx-swap="innerHTML"
+                            class="text-sm font-medium uppercase hover:text-gray-300">
+                        SEARCH
+                    </button>
+                </div>
+                <a href="№" 
                 class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
-                    ACCOUNT
-                </a>
-                <a href="#" id="mobileCart" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">CART (0)</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <header class="sticky top-0 bg-white">
-        <div class="mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Mobile Menu Button -->
-                <button id="menuToggle" class="hamburger md:hidden">
-                    <span></span>
-                    <span></span>
-                    <span></span>
                 </button>
-                
-                <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <a href="{% url 'main:index' %}" 
-                       hx-get="{% url 'main:index' %}" 
-                       hx-target="#main-content" 
-                       hx-push-url="true">
-                        <h1 class="text-sm sm:text-lg font-bold tracking-tight text-left">
-                            ENFANTS RICHES <br>
-                            DÉPRIMÉS
-                        </h1>
-                    </a>
-                </div>
-                
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex space-x-8">
-                    {% for category in categories %}
-                    <a href="{% url 'main:catalog' category.slug %}" 
-                       hx-get="{% url 'main:catalog' category.slug %}" 
-                       hx-target="#main-content" 
-                       hx-push-url="true"
-                       class="nav-link text-sm font-medium text-gray-900 hover:text-gray-700 {% if current_category == category.slug %}active{% endif %}">
-                       {{ category.name|upper }}
-                    </a>
-                    {% endfor %}
-                </nav>
-                
-                <!-- Right side links -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <div class="relative" id="mobile-search-wrapper">
-                        <button id="mobile-search-toggle" 
-                                hx-get="{% url 'main:catalog_all' %}?show_search=true" 
-                                hx-target="#mobile-search-wrapper" 
-                                hx-swap="innerHTML"
-                                class="text-sm font-medium uppercase hover:text-gray-600">
-                            SEARCH
-                        </button>
-                    </div>
-                    <a href="{% url 'users:profile' %}" 
-                    hx-get="{% url 'users:profile' %}" 
-                    hx-target="#main-content" 
-                    hx-push-url="true"
-                    class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
-                        ACCOUNT
-                    </a>
-                    <a href="#" id="desktopCart" class="text-sm font-medium text-gray-900 hover:text-gray-700">CART (0)</a>
-                </div>
-                
-                <!-- Mobile Cart Icon -->
-                <div class="md:hidden">
-                    <a href="#" id="mobileCartHeader" class="text-xs font-medium text-gray-900">CART (0)</a>
-                </div>
+                <a href="{% url 'users:profile' %}"
+                hx-get="{% url 'users:profile' %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="text-sm font-medium uppercase hover:text-gray-300">
+                ACCOUNT
+                </a>
+                <a href="{% url 'main:index' %}" id="desktopCart" class="text-sm font-medium hover:text-gray-300">
+                CART (0)
+                </a>
+            </div>
+
+            <!-- Mobile Cart Icon -->
+            <div class="md:hidden">
+                <a href="#" id="mobileCartHeader" class="text-xs font-medium hover:text-gray-300">
+                CART (0)
+                </a>
+            </div>
             </div>
         </div>
-    </header>
-    <div id="cart-container"></div>
+        </header>
 
-    <!-- Loading Indicator -->
-    <div class="htmx-indicator fixed top-0 left-0 w-full h-1 bg-black z-50"></div>
+        <!-- Cart container & HTMX loader -->
+        <div id="cart-container"></div>
+        <div class="htmx-indicator fixed top-0 left-0 w-full h-1 bg-white z-50"></div>
 
-    <!-- Main Content -->
-    <div id="main-content">
+        <!-- Main Content -->
+        <div id="main-content" hx-swap="innerHTML">
         {% block content %}
         <!-- Default home content -->
         <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center py-20">
-                <h2 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">
-                    ENFANTS RICHES DÉPRIMÉS
-                </h2>
-                <p class="text-lg text-gray-600 mb-8">
-                    Select a category to browse our collection
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                    {% for category in categories %}
-                    <a href="{% url 'main:catalog' category.slug %}" 
-                       hx-get="{% url 'main:catalog' category.slug %}" 
-                       hx-target="#main-content" 
-                       hx-push-url="true"
-                       class="block p-8 border border-gray-200 hover:border-gray-300 transition-colors">
-                        <h3 class="text-xl font-bold">{{ category.name|upper }}</h3>
-                    </a>
-                    {% endfor %}
-                </div>
+            <h2 class="text-4xl font-bold tracking-tight text-white mb-4">
+                ENFANTS RICHES DÉPRIMÉS
+            </h2>
+            <p class="text-lg text-gray-200 mb-8">
+                Select a category to browse our collection
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                {% for category in categories %}
+                <a href="{% url 'main:catalog' category.slug %}"
+                hx-get="{% url 'main:catalog' category.slug %}"
+                hx-target="#main-content" hx-push-url="true"
+                class="bg-black rounded-sm block p-8 bg-opacity-40 hover:bg-gray-200 hover:text-black hover:bg-opacity-50 hover:rounded-md transition-colors">
+                <h3 class="text-xl font-bold text-white">{{ category.name|upper }}</h3>
+                </a>
+                {% endfor %}
+            </div>
             </div>
         </main>
         {% endblock %}
+        </div>
     </div>
 
     <script>

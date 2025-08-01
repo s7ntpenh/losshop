@@ -4,7 +4,7 @@
            name="q" 
            placeholder="SEARCH" 
            value="{{ search_query|default:'' }}"
-           class="w-40 bg-white border border-gray-300 py-2 px-3 text-sm font-medium uppercase focus:outline-none focus:border-gray-900"
+           class="w-40 bg-white bg-opacity-70 rounded-md py-2 px-3 text-sm text-black font-medium uppercase focus:outline-none"
            hx-get="{% url 'main:catalog_all' %}" 
            hx-target="#main-content" 
            hx-push-url="true"

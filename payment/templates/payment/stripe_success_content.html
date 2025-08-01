@@ -1,13 +1,27 @@
 <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="text-center py-20">
-        <h1 class="text-2xl font-bold text-gray-900 mb-4 uppercase">Thank You for Your Order!</h1>
-        <p class="text-gray-600 mb-4">Your order #{{ order.id }} has been successfully placed.</p>
-        <p class="text-gray-600 mb-8">We'll send a confirmation to <strong>{{ order.email }}</strong> soon.</p>
+        <h1 class="text-2xl font-bold text-white mb-4 uppercase">Thank You for Your Order!</h1>
+        <p class="text-gray-100 mb-4">Your order #{{ order.id }} has been successfully placed.</p>
+        <p class="text-gray-100 mb-8">We'll send a confirmation to <strong>{{ order.email }}</strong> soon.</p>
+        <div class="text-center py-20">
+            <!-- 📦 Кнопка скачивания -->
+            <button id="download-btn"
+                    class="uppercase bg-white text-black font-medium text-sm px-6 py-3 shadow hover:bg-black hover:text-white hover:bg-opacity-60 transition duration-200">
+            Download Your Kit
+            </button>
+
+            <script>
+            document.getElementById('download-btn').addEventListener('click', () => {
+                window.location = "{% url 'payment:order-download' session_id=session_id %}";
+            });
+        </script>
+    </div>
+
         <a href="{% url 'main:index' %}" 
            hx-get="{% url 'main:index' %}" 
            hx-target="#main-content" 
            hx-push-url="true"
-           class="bg-black text-white px-6 py-3 text-sm font-medium uppercase hover:bg-gray-800 transition-colors">
+           class="bg-black text-white px-6 py-3 text-sm font-medium uppercase hover:bg-opacity-80 transition-colors">
             Continue Shopping
         </a>
     </div>

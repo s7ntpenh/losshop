@@ -12,19 +12,19 @@
                            hx-get="{% url 'main:index' %}" 
                            hx-target="#main-content" 
                            hx-push-url="true"
-                           class="hover:text-gray-900">HOME</a>
-                        <span class="mx-2">/</span>
-                        <span class="font-medium">CHECKOUT</span>
+                           class="text-white hover:text-gray-300">HOME</a>
+                        <span class="mx-2 text-gray-300">/</span>
+                        <span class="text-white font-medium">CHECKOUT</span>
                     </nav>
                 </div>
 
                 <!-- Contact Information -->
-                <div class="bg-white p-6">
+                <div class="bg-white bg-opacity-80 round-xl p-6">
                     <h2 class="text-lg font-bold text-black mb-4">Contact Information</h2>
                     
                     <form method="post" id="order-form" hx-post="{% url 'orders:checkout' %}" hx-target="#main-content" hx-swap="outerHTML">
                         {% csrf_token %}
-                        <div class="bg-white p-6">
+                        <div class="round-xl p-6">
                             <div class="space-y-4">
                                 <div>
                                     <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-black mb-1">Email</label>
@@ -41,7 +41,7 @@
                         </div>
                     
                         <!-- Shipping Address -->
-                        <div class="bg-white p-6">
+                        <div class="bg-white bg-opacity-0 p-6">
                             <h2 class="text-lg font-bold text-black mb-4">Shipping Address</h2>
                             <div class="space-y-4">
                                 <div>
@@ -136,7 +136,7 @@
                                     form="order-form"
                                     name="create_order" 
                                     value="create_order" 
-                                    class="w-full bg-black text-white py-4 px-6 font-bold hover:bg-gray-800 transition-colors payment-button"
+                                    class="w-full bg-black text-white py-4 px-6 font-bold hover:bg-opacity-60 transition-colors payment-button"
                                     onclick="document.getElementById('payment_provider').value='stripe'">
                                 Pay with Stripe
                             </button>
@@ -154,14 +154,14 @@
 
                 <!-- Refund Policy -->
                 <div class="text-center">
-                    <a href="#" class="text-sm text-gray-600 underline hover:text-gray-800">Refund Policy</a>
+                    <a href="#" class="text-sm text-gray-600 underline hover:text-gray-800"> <br> Refund Policy</a>
                 </div>
             </div>
         </div>
         <!-- Right Column - Order Summary -->
-        <div class="bg-white p-6 rounded-lg shadow-sm h-fit">
+        <div class="bg-gray-100 p-6 rounded-lg shadow-sm h-fit">
             <!-- Cart Items -->
-            <div class="space-y-4 mb-6">
+            <div class="text-black space-y-4 mb-6">
                 {% for item in cart_items %}
                     <div class="flex items-center space-x-4">
                         <div class="relative">
@@ -180,7 +180,7 @@
             </div>
 
             <!-- Order Summary -->
-            <div id="order-summary" class="space-y-3 border-t pt-4">
+            <div id="order-summary" class="text-black space-y-3 border-t pt-4">
                 <div class="flex justify-between text-sm">
                     <span>Subtotal • {{ cart.total_items }} item{{ cart.total_items|pluralize }}</span>
                     <span>€{{ total_price|floatformat:2 }}</span>

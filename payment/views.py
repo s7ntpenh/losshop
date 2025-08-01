@@ -13,6 +13,9 @@ from decimal import Decimal
 import json
 import hashlib
 import base64
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
 
 # stripe login
 # stripe listen --forward-to localhost:8000/payment/stripe/webhook/
@@ -79,6 +82,7 @@ def stripe_webhook(request):
             order = Order.objects.get(id=order_id)
             order.status = 'processing'
             order.stripe_payment_intent_id = session.get('payment_intent')
+            order.download_file = f"products/{order.items.first().product.name}.7z"
             order.save()
         except Order.DoesNotExist:
             return HttpResponse(status=400)
@@ -96,7 +100,7 @@ def stripe_success(request):
             cart = CartMixin().get_cart(request)
             cart.clear()
 
-            context = {'order': order}
+            context = {'order': order, 'session_id': session_id}
             if request.headers.get('HX-Request'):
                 return TemplateResponse(request, 'payment/stripe_success_content.html', context)
             return render(request, 'payment/stripe_success.html', context)
@@ -116,3 +120,18 @@ def stripe_cancel(request):
             return TemplateResponse(request, 'payment/stripe_cancel_content.html', context)
         return render(request, 'payment/stripe_cancel.html', context)
     return redirect('orders:checkout')
+
+
+def download_view(request, session_id):
+    session = stripe.checkout.Session.retrieve(session_id)
+    order = get_object_or_404(Order, id=session.metadata.get('order_id'))
+
+    if order.user != request.user or order.status != 'processing':
+        raise Http404
+
+    file_path = os.path.join(settings.MEDIA_ROOT, order.download_file)
+
+
+    return FileResponse(open(file_path, 'rb'),
+                        as_attachment=True,
+                        filename=os.path.basename(file_path))

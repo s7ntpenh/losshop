@@ -1,15 +1,15 @@
 {% block content %}
-<main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<main class="text-white mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb and Filters -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 space-y-4 sm:space-y-0">
-        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 uppercase">
+    <div class="text-white flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 space-y-4 sm:space-y-0">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white uppercase">
             {% if current_category %}
                 {{ current_category|upper }} > NEW ARRIVALS
             {% else %}
                 ALL PRODUCTS
             {% endif %}
         </h2>
-        <button class="bg-black text-white px-4 py-2 text-sm font-medium uppercase hover:bg-gray-800 transition-colors w-full sm:w-auto" 
+        <button class="bg-black bg-opacity-50 rounded-sm text-white px-4 py-2 text-sm font-medium uppercase hover:bg-white hover:bg-opacity-30 hover:text-black hover:rounded-lg transition-colors w-full sm:w-auto" 
                 hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}?show_filters=true&color={{ filter_params.color|urlencode }}&min_price={{ filter_params.min_price|urlencode }}&max_price={{ filter_params.max_price|urlencode }}&size={{ filter_params.size|urlencode }}" 
                 hx-target="#filter-modal-content"
                 hx-swap="innerHTML"
@@ -25,9 +25,9 @@
 
     <!-- Product Grid -->
     {% if products %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
+    <div class="text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
         {% for product in products %}
-        <div class="product-card group cursor-pointer" 
+        <div class="text-white product-card group cursor-pointer" 
              hx-get="{% url 'main:product_detail' product.slug %}"
              hx-target="#main-content"
              hx-push-url="true">
@@ -42,17 +42,17 @@
                     </div>
                 {% endif %}
             </div>
-            <div class="text-center">
-                <h3 class="text-sm font-medium text-gray-900 mb-1 uppercase">{{ product.name }}</h3>
-                <p class="text-sm text-gray-600 mb-1 uppercase">{{ product.color }}</p>
-                <p class="text-sm font-medium">${{ product.price }}</p>
+            <div class="text-white text-center">
+                <h3 class="text-sm font-medium text-white mb-1 uppercase">{{ product.name }}</h3>
+                <p class="text-sm text-white mb-1 uppercase">{{ product.color }}</p>
+                <p class="text-white text-sm font-medium">${{ product.price }}</p>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-20">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase">No products found</h3>
+    <div class="text-white text-center py-20">
+        <h3 class="text-2xl font-bold text-white mb-4 uppercase">No products found</h3>
         <p class="text-gray-600 mb-8">
             {% if current_category %}
                 No products available in this category yet.

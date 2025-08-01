@@ -1,20 +1,20 @@
 <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb -->
-    <div class="mb-8">
+    <div class="mb-8 text-white">
         <nav class="text-sm text-gray-600">
             <a href="{% url 'main:index' %}" 
                hx-get="{% url 'main:index' %}" 
                hx-target="#main-content" 
                hx-push-url="true"
-               class="hover:text-gray-900">HOME</a>
-            <span class="mx-2">/</span>
+               class="text-gray-200 hover:text-white">HOME</a>
+            <span class="mx-2 text-gray-400">/</span>
             <a href="{% url 'main:catalog' product.category.slug %}" 
                hx-get="{% url 'main:catalog' product.category.slug %}" 
                hx-target="#main-content" 
                hx-push-url="true"
-               class="hover:text-gray-900">{{ product.category.name|upper }}</a>
-            <span class="mx-2">/</span>
-            <span class="text-gray-900">{{ product.name|upper }}</span>
+               class="text-gray-200 hover:text-white">{{ product.category.name|upper }}</a>
+            <span class="mx-2 text-gray-400">/</span>
+            <span class="text-gray-200">{{ product.name|upper }}</span>
         </nav>
     </div>
 
@@ -52,17 +52,17 @@
         <!-- Product Info -->
         <div class="space-y-6">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 mb-2">
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
                     {{ product.name|upper }}
                 </h1>
-                <p class="text-lg text-gray-600 mb-4">{{ product.color|upper }}</p>
-                <p class="text-2xl font-bold text-gray-900">${{ product.price }}</p>
+                <p class="text-lg text-gray-300 mb-4">{{ product.color|upper }}</p>
+                <p class="text-2xl font-bold text-white">${{ product.price }}</p>
             </div>
 
             <!-- Sizes -->
             {% if product.product_sizes.all %}
             <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-3">SIZE</h3>
+                <h3 class="text-sm font-medium text-gray-300 mb-3">SIZE</h3>
                 <div class="grid grid-cols-4 gap-2">
                     {% for product_size in product.product_sizes.all %}
                     <div class="size-option">
@@ -84,7 +84,7 @@
             </div>
             {% else %}
             <div>
-                <h3 class="text-sm font-medium text-gray-900 mb-3">SIZE</h3>
+                <h3 class="text-sm font-medium text-white mb-3">SIZE</h3>
                 <p class="text-sm text-gray-600">No sizes available</p>
             </div>
             {% endif %}
@@ -92,7 +92,7 @@
             <!-- Add to Cart -->
             <div class="space-y-4">
                 <button id="add-to-cart-btn" 
-                        class="w-full bg-black text-white py-3 px-6 text-sm font-medium hover:bg-gray-800 transition-colors"
+                        class="w-full bg-black text-white py-3 px-6 text-sm font-medium hover:bg-black hover:bg-opacity-60 transition-colors"
                         onclick="addToCart()"
                         {% if not product.product_sizes.all %}disabled{% endif %}>
                     ADD TO CART
@@ -104,9 +104,9 @@
             </div>
 
             <!-- Product Details -->
-            <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-sm font-medium text-gray-900 mb-3">DETAILS</h3>
-                <div class="prose prose-sm text-gray-600">
+            <div class="pt-6 text-white bg-black rounded-xl block p-8 bg-opacity-30 transition-colors">
+                <h3 class="text-sm font-medium text-white mb-3">DETAILS</h3>
+                <div class="prose prose-sm text-white">
                     <p>{{ product.description|linebreaks }}</p>
                     <p>Created: {{ product.created_at|date:"F d, Y" }}</p>
                 </div>
@@ -114,8 +114,8 @@
 
             <!-- Care Instructions -->
             <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-sm font-medium text-gray-900 mb-3">CARE</h3>
-                <div class="prose prose-sm text-gray-600">
+                <h3 class="text-sm font-medium text-white mb-3">CARE</h3>
+                <div class="prose prose-sm text-gray-200">
                     <p>Professional dry clean only</p>
                     <p>Do not bleach</p>
                     <p>Iron at low temperature</p>
