@@ -49,8 +49,8 @@ class CheckoutView(CartMixin, View):
 
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'orders/checkout_content.html', context)
-        return render(request, 'orders/checkout.html', context)
-
+        return TemplateResponse(request, 'orders/checkout_page.html', context)
+    
     def post(self, request):
         cart = self.get_cart(request)
         payment_provider = request.POST.get('payment_provider')
@@ -76,7 +76,7 @@ class CheckoutView(CartMixin, View):
             }
             if request.headers.get('HX-Request'):
                 return TemplateResponse(request, 'orders/checkout_content.html', context)
-            return render(request, 'orders/checkout.html', context)
+            return TemplateResponse(request, 'orders/checkout_page.html', context)
 
         total_price = cart.subtotal
         form_data = request.POST.copy()
@@ -137,7 +137,7 @@ class CheckoutView(CartMixin, View):
                 }
                 if request.headers.get('HX-Request'):
                     return TemplateResponse(request, 'orders/checkout_content.html', context)
-                return render(request, 'orders/checkout.html', context)
+                return TemplateResponse(request, 'orders/checkout_page.html', context)
         else:
             logger.warning(f"Form validation error: {form.errors}")
             context = {
@@ -149,4 +149,4 @@ class CheckoutView(CartMixin, View):
             }
             if request.headers.get('HX-Request'):
                 return TemplateResponse(request, 'orders/checkout_content.html', context)
-            return render(request, 'orders/checkout.html', context)
+            return TemplateResponse(request, 'orders/checkout_page.html', context)

@@ -25,7 +25,7 @@ class IndexView(TemplateView):
     
 
 class CatalogView(TemplateView):
-    template = 'main/base.html'
+    template_name = 'main/base.html'
 
     FILTER_MAPPING = {
         'color': lambda queryset, value: queryset.filter(color__iexact=value),
@@ -89,12 +89,12 @@ class CatalogView(TemplateView):
                 return TemplateResponse(request, 'main/search_button.html', {})
             template = 'main/filter_modal.html' if request.GET.get('show_filters') == 'true' else 'main/catalog.html'
             return TemplateResponse(request, template, context)
-        return TemplateResponse(request, self.template_name, context)
+        return TemplateResponse(request, 'main/catalog_page.html', context)
     
 
 class ProductDetailView(DetailView):
     model = Product
-    template_name = 'main/base.html'
+    # template_name = 'main/base.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
@@ -115,4 +115,4 @@ class ProductDetailView(DetailView):
         context = self.get_context_data(**kwargs)
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'main/product_detail.html', context)
-        return TemplateResponse(request, self.template_name, context)
+        return TemplateResponse(request, 'main/product_page.html', context)
