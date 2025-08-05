@@ -131,7 +131,9 @@ def download_view(request, session_id):
 
     file_path = os.path.join(settings.MEDIA_ROOT, order.download_file)
 
-
-    return FileResponse(open(file_path, 'rb'),
-                        as_attachment=True,
-                        filename=os.path.basename(file_path))
+    try:
+        return FileResponse(open(file_path, 'rb'),
+                            as_attachment=True,
+                            filename=os.path.basename(file_path))
+    except FileNotFoundError:
+        raise Http404

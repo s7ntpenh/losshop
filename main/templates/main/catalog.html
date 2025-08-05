@@ -27,11 +27,11 @@
     {% if products %}
     <div class="text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
         {% for product in products %}
-        <div class="text-white product-card group cursor-pointer" 
+        <div class="product-card group cursor-pointer transform transition-all duration-300 hover:-translate-y-1 hover:scale-105"
              hx-get="{% url 'main:product_detail' product.slug %}"
              hx-target="#main-content"
              hx-push-url="true">
-            <div class="aspect-square overflow-hidden bg-gray-100 mb-4">
+            <div class="aspect-square overflow-hidden bg-gray-100 mb-4 opacity-95 hover:opacity-100">
                 {% if product.main_image %}
                     <img src="{{ product.main_image.url }}" 
                          alt="{{ product.name }}" 
@@ -43,9 +43,15 @@
                 {% endif %}
             </div>
             <div class="text-white text-center">
-                <h3 class="text-sm font-medium text-white mb-1 uppercase">{{ product.name }}</h3>
-                <p class="text-sm text-white mb-1 uppercase">{{ product.color }}</p>
-                <p class="text-white text-sm font-medium">${{ product.price }}</p>
+                <h3 class="text-sm font-medium uppercase mb-1 transition-colors duration-300 group-hover:text-gray-300">
+                    {{ product.name }}
+                </h3>
+                <p class="text-sm uppercase mb-1 transition-colors duration-300 group-hover:text-gray-300">
+                    {{ product.color }}
+                </p>
+                <p class="text-sm font-medium transition-colors duration-300 group-hover:text-gray-300">
+                    ${{ product.price }}
+                </p>
             </div>
         </div>
         {% endfor %}
@@ -70,21 +76,4 @@
     </div>
     {% endif %}
 </main>
-
-<script>
-    // Product card hover and click functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const productCards = document.querySelectorAll('.product-card');
-        productCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.transition = 'transform 0.3s ease';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-    });
-</script>
 {% endblock %}

@@ -127,7 +127,7 @@
     <!-- Related Products -->
     {% if related_products %}
     <div class="mt-16 border-t border-gray-200 pt-16">
-        <h2 class="text-xl font-bold tracking-tight text-gray-900 mb-8">YOU MAY ALSO LIKE</h2>
+        <h2 class="text-xl font-bold tracking-tight text-white mb-8">YOU MAY ALSO LIKE</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {% for related_product in related_products %}
             <div class="product-card group cursor-pointer" 
@@ -146,9 +146,9 @@
                     {% endif %}
                 </div>
                 <div class="text-center">
-                    <h3 class="text-sm font-medium text-gray-900 mb-1">{{ related_product.name|upper }}</h3>
-                    <p class="text-sm text-gray-600 mb-1">{{ related_product.color|upper }}</p>
-                    <p class="text-sm font-medium">${{ related_product.price }}</p>
+                    <h3 class="text-sm font-medium text-white mb-1">{{ related_product.name|upper }}</h3>
+                    <p class="text-sm text-white mb-1">{{ related_product.color|upper }}</p>
+                    <p class="text-sm font-medium text-gray-200">${{ related_product.price }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -324,14 +324,4 @@
     document.addEventListener('DOMContentLoaded', initializeSizeRadios);
     document.addEventListener('htmx:afterSwap', initializeSizeRadios);
 
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.transition = 'transform 0.3s ease';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
 </script>

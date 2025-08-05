@@ -29,7 +29,7 @@ def login_view(request):
         form = CustomUserLoginForm(request=request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')   
             return redirect('main:index')
     else:
         form = CustomUserLoginForm()
@@ -42,9 +42,9 @@ def profile_view(request):
         form = CustomUserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            if request.headers.get("HX-Request"):
-                return HttpResponse(headers={'HX-Redirect': reverse('users:profile')})
-            return redirect('users:profile')
+            if request.headers.get('HX-Request'):
+                return TemplateResponse(request, 'users/profile.html', context)
+            return TemplateResponse(request, 'users/profile_page.html', context)
     else:
         form = CustomUserUpdateForm(instance=request.user)
 
@@ -67,7 +67,9 @@ def profile_view(request):
         'latest_order_name': latest_name,
         'orders': all_orders,
     }
-    return TemplateResponse(request, 'users/profile.html', context)
+    if request.headers.get('HX-Request'):
+        return TemplateResponse(request, 'users/profile.html', context)
+    return TemplateResponse(request, 'users/profile_page.html', context)
 
 
 @login_required(login_url='/users/login')
@@ -113,10 +115,14 @@ def logout_view(request):
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return TemplateResponse(request, 'users/partials/order_history.html', {'orders': orders})
+    if request.headers.get('HX-Request'):
+        return TemplateResponse(request, 'users/partials/order_history.html', {'orders': orders})
+    return TemplateResponse(request, 'users/order_history_page.html', {'orders': orders})
 
 
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    return TemplateResponse(request, 'users/partials/order_detail.html', {'order': order})
+    if request.headers.get('HX-Request'):
+        return TemplateResponse(request, 'users/partials/order_detail.html', {'order': order})
+    return TemplateResponse(request, 'users/order_detail_page.html', {'order': order})
