@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import re
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -23,14 +23,60 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+# === helper functions ===
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return str(val).strip().lower() in {"1", "true", "t", "yes", "y", "on"}
+
+
+def env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, default))
+    except ValueError:
+        return default
+
+
+def env_list(name: str, default=None, sep: str = ","):
+    raw = os.getenv(name)
+    if not raw:
+        return default or []
+    return [item.strip() for item in raw.split(sep) if item.strip()]
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-dev-key")
 
+DEBUG = env_bool("DEBUG")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+# Django требует ALLOWED_HOSTS при DEBUG=False
+# (см. чек-лист деплоя). :contentReference[oaicite:0]{index=0}
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# CSRF_TRUSTED_ORIGINS должны включать схему (http/https), а не только hostname. :contentReference[oaicite:1]{index=1}
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default=[])
+
+# Опционально, если сидим за обратным прокси/CDN:
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https")
+    if env_bool("USE_X_FORWARDED_PROTO", False)
+    else None
+)
+
+# Жёсткие флаги безопасности — управляем из .env и включаем в проде
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=not DEBUG)
+SECURE_HSTS_SECONDS = env_int(
+    "SECURE_HSTS_SECONDS", default=0 if DEBUG else 60 * 60 * 24 * 7
+)  # 1 неделя по умолчанию в проде
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG
+)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
 
 # Application definition
 
@@ -51,6 +97,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -97,6 +144,40 @@ DATABASES = {
     }
 }
 
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"       # куда collectstatic будет складывать
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',    # <-- здесь исходники статики
+]
+
+# WhiteNoise манифест для стабильных хэшей и gzip/brotli. :contentReference[oaicite:4]{index=4}
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# В деве удобно автоперезагрузка и finders, в проде — по умолчанию False.
+WHITENOISE_AUTOREFRESH = env_bool("WHITENOISE_AUTOREFRESH", default=DEBUG)
+WHITENOISE_USE_FINDERS = env_bool("WHITENOISE_USE_FINDERS", default=DEBUG)
+# Если в деве не хочется падать по отсутствию файла в манифесте:
+WHITENOISE_MANIFEST_STRICT = env_bool("WHITENOISE_MANIFEST_STRICT", default=not DEBUG)
+WHITENOISE_MAX_AGE = 31536000  # 1 year
+WHITENOISE_USE_BROTLI = True
+WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: bool(
+    re.search(r"\.[0-9a-f]{8,}\.", url)
+)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT  = BASE_DIR / 'media'
+
+
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        # медиа локально на диске; на проде можно заменить на S3 через django-storages
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -116,6 +197,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ---- logging ----
+LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING").upper()
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -128,15 +217,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

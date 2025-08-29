@@ -10,4 +10,5 @@ security.log
 
 db.sqlite3
 media/
+staticfiles/
 debug.log
