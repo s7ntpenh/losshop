@@ -81,13 +81,13 @@ SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
 # Application definition
 
 INSTALLED_APPS = [
-    "cloudinary_storage",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "cloudinary_storage",
     
     'main',
     'cart',
@@ -171,7 +171,10 @@ WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: bool(
 MEDIA_URL = '/media/'
 MEDIA_ROOT  = BASE_DIR / 'media'
 
-
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+]
 
 STORAGES = {
     "staticfiles": {
