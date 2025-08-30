@@ -81,7 +81,6 @@ SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
 # Application definition
 
 INSTALLED_APPS = [
-    "cloudinary", 
     "cloudinary_storage",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -146,14 +145,17 @@ DATABASES = {
     }
 }
 
+# --- STATIC/MEDIA ---
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"       # куда collectstatic будет складывать
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',    # <-- здесь исходники статики
-]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_DIRS = []
+_static = BASE_DIR / "static"
+if _static.exists():
+    STATICFILES_DIRS.append(_static)
 
 # WhiteNoise манифест для стабильных хэшей и gzip/brotli. :contentReference[oaicite:4]{index=4}
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 # В деве удобно автоперезагрузка и finders, в проде — по умолчанию False.
 WHITENOISE_AUTOREFRESH = env_bool("WHITENOISE_AUTOREFRESH", default=DEBUG)
@@ -181,6 +183,7 @@ STORAGES = {
     },
 }
 
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -236,18 +239,10 @@ STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 USE_CLOUD = os.getenv("USE_CLOUD", "0") in {"1","true","yes","on"}
 
 if USE_CLOUD:
-    # Все user uploads -> Cloudinary
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    # apps можно держать всегда, но так чуть чище:
 
-    # Статика остаётся через WhiteNoise (как у тебя уже настроено)
-    # (если захочешь — можно и статику в Cloudinary, но не обязательно)
-
-    CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")  # вида cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-    # Опционально:
-    MEDIA_URL = os.getenv("MEDIA_URL", "/media/")  # Cloudinary и так вернёт абсолютные URL, можно не трогать
-
-if USE_CLOUD:
     STORAGES["default"] = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     }
-    # STATIC остаётся через WhiteNoise как было
+    CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")  # cloudinary://KEY:SECRET@CLOUD
+    CLOUDINARY_STORAGE = {"SECURE": True}
