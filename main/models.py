@@ -45,9 +45,6 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.CharField(blank=True)
     main_image = models.ImageField(upload_to='products/main/')
-    # Optional archive with sound pack for the product (.7z or others)
-    sound_archive = models.FileField(upload_to='products/', blank=True, null=True,
-                                     help_text='Загрузите .7z архив со звуками (media/products)')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -65,11 +62,3 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/exstra/')
-
-
-class SiteSettings(models.Model):
-    """Singleton-like model to store site-wide settings such as background video."""
-    background_video = models.FileField(upload_to='products/main/', blank=True, null=True)
-
-    def __str__(self):
-        return "Site Settings"
