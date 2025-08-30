@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Size, Product, ProductSize, ProductImage
+from .models import Category, Size, Product, ProductSize, ProductImage, SiteSettings
 
 class ProductImageInLine(admin.TabularInline):
     model = ProductImage
@@ -30,3 +30,6 @@ class SizeAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Size, SizeAdmin)
 admin.site.register(Product, ProductAdmin)
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ['__str__']
