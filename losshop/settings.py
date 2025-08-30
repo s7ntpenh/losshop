@@ -81,6 +81,8 @@ SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
 # Application definition
 
 INSTALLED_APPS = [
+    "cloudinary", 
+    "cloudinary_storage",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -231,3 +233,21 @@ AUTH_USER_MODEL = 'users.CustomUser'
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
+USE_CLOUD = os.getenv("USE_CLOUD", "0") in {"1","true","yes","on"}
+
+if USE_CLOUD:
+    # Все user uploads -> Cloudinary
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    # Статика остаётся через WhiteNoise (как у тебя уже настроено)
+    # (если захочешь — можно и статику в Cloudinary, но не обязательно)
+
+    CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")  # вида cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+    # Опционально:
+    MEDIA_URL = os.getenv("MEDIA_URL", "/media/")  # Cloudinary и так вернёт абсолютные URL, можно не трогать
+
+if USE_CLOUD:
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    }
+    # STATIC остаётся через WhiteNoise как было
