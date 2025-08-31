@@ -160,7 +160,7 @@
 
 
     <!-- Fixed background video via static/WhiteNoise -->
-    <video autoplay muted loop playsinline
+    <video id="bgVideo" autoplay muted loop playsinline webkit-playsinline preload="auto"
             class="fixed inset-0 w-screen h-screen object-cover z-[-1]">
         <source src="{% static 'products/main/bg-vid3.mp4' %}" type="video/mp4">
         Your browser does not support the video tag.
@@ -313,6 +313,24 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Ensure background video autoplays on mobile (iOS/Safari quirks)
+            try {
+                const v = document.getElementById('bgVideo');
+                if (v) {
+                    // Inline + muted must be set before play() on iOS
+                    v.setAttribute('muted', '');
+                    v.muted = true;
+                    v.setAttribute('playsinline', '');
+                    v.setAttribute('webkit-playsinline', '');
+                    v.playsInline = true;
+                    // Attempt to play; ignore failures (e.g., low power mode)
+                    const playPromise = v.play();
+                    if (playPromise && typeof playPromise.then === 'function') {
+                        playPromise.catch(() => {/* no-op */});
+                    }
+                }
+            } catch (_) { /* ignore */ }
+
             // Mobile menu functionality
             const menuToggle = document.getElementById('menuToggle');
             const closeMenu = document.getElementById('closeMenu');
