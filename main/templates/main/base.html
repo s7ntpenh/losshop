@@ -210,7 +210,8 @@
             </a>
             </div>
         </div>
-        </div>
+    </div>
+</div>
 
         <!-- Header -->
         <header class="sticky top-0 bg-black bg-opacity-45 text-white">
@@ -255,17 +256,17 @@
                         SEARCH
                     </button>
                 </div>
-                <a href="№" 
-                class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
-                </button>
+                <a href="#" 
+                    class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                </a>
                 <a href="{% url 'users:profile' %}"
-                hx-get="{% url 'users:profile' %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="text-sm font-medium uppercase hover:text-gray-300">
-                ACCOUNT
+                    hx-get="{% url 'users:profile' %}"
+                    hx-target="#main-content" hx-push-url="true"
+                    class="text-sm font-medium uppercase hover:text-gray-300">
+                    ACCOUNT
                 </a>
                 <a href="{% url 'main:index' %}" id="desktopCart" class="text-sm font-medium hover:text-gray-300">
-                CART (0)
+                    CART (0)
                 </a>
             </div>
 
@@ -308,7 +309,6 @@
             </div>
         </main>
         {% endblock %}
-        </div>
     </div>
 
     <script>
@@ -317,6 +317,7 @@
             try {
                 const v = document.getElementById('bgVideo');
                 if (!v) return;
+                // Принудительно устанавливаем все необходимые атрибуты для iOS
                 v.setAttribute('muted', '');
                 v.muted = true;
                 v.setAttribute('playsinline', '');
@@ -324,16 +325,68 @@
                 v.playsInline = true;
                 v.setAttribute('autoplay', '');
                 v.setAttribute('loop', '');
+                v.defaultMuted = true;
+                
+                // Для iOS: принудительно загружаем видео
+                if (v.readyState < 2) {
+                    v.load();
+                }
+                
+                // Пытаемся запустить видео
                 if (v.paused) {
-                    const p = v.play();
-                    if (p && typeof p.then === 'function') p.catch(() => {});
+                    const playPromise = v.play();
+                    if (playPromise && typeof playPromise.then === 'function') {
+                        playPromise.catch(() => {
+                            // Если автовоспроизведение заблокировано, пытаемся запустить при первом клике
+                            const startVideoOnInteraction = () => {
+                                v.play().catch(() => {});
+                                document.removeEventListener('touchstart', startVideoOnInteraction);
+                                document.removeEventListener('click', startVideoOnInteraction);
+                            };
+                            document.addEventListener('touchstart', startVideoOnInteraction, { once: true });
+                            document.addEventListener('click', startVideoOnInteraction, { once: true });
+                        });
+                    }
                 }
             } catch (_) { /* no-op */ }
+        }
+
+        function rebindAllHandlers() {
+            bindMenuHandlers();
+            bindCartHandlers();
+            ensureBgVideoPlaying();
+        }
+
+        function bindCartHandlers() {
+            const desktopCart = document.getElementById('desktopCart');
+            const mobileCart = document.getElementById('mobileCart');
+            const mobileCartHeader = document.getElementById('mobileCartHeader');
+            
+            function openCart() {
+                htmx.ajax('GET', '{% url "cart:cart_modal" %}', {
+                    target: '#cart-container',
+                    swap: 'innerHTML'
+                });
+            }
+
+            [desktopCart, mobileCart, mobileCartHeader].forEach(cartLink => {
+                if (cartLink && !cartLink.dataset.cartBound) {
+                    cartLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        openCart();
+                    });
+                    cartLink.dataset.cartBound = '1';
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             // Ensure background video autoplays on first load
             ensureBgVideoPlaying();
+
+            // Дополнительная попытка запуска видео через небольшую задержку
+            setTimeout(ensureBgVideoPlaying, 100);
+            setTimeout(ensureBgVideoPlaying, 500);
 
             // Mobile menu functionality
             const menuToggle = document.getElementById('menuToggle');
@@ -403,22 +456,7 @@
                     });
             }
     
-            function openCart() {
-                htmx.ajax('GET', '{% url "cart:cart_modal" %}', {
-                    target: '#cart-container',
-                    swap: 'innerHTML'
-                });
-            }
-    
-            [desktopCart, mobileCart, mobileCartHeader].forEach(cartLink => {
-                if (cartLink && !cartLink.dataset.bound) {
-                    cartLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        openCart();
-                    });
-                    cartLink.dataset.bound = '1';
-                }
-            });
+            bindCartHandlers();
     
             // Close mobile menu on window resize
             if (!window.__menuResizeBound) {
@@ -433,8 +471,7 @@
             // Update active navigation links after HTMX requests
             document.addEventListener('htmx:afterSettle', function() {
                 updateActiveNavLinks();
-                ensureBgVideoPlaying();
-                bindMenuHandlers();
+                rebindAllHandlers();
             });
     
             function updateActiveNavLinks() {
@@ -449,14 +486,12 @@
                 });
             }
             
-            // Keep UI intact when navigating browser history with HTMX
+            
             document.addEventListener('htmx:historyRestore', function() {
-                ensureBgVideoPlaying();
-                bindMenuHandlers();
+                rebindAllHandlers();
             });
             document.addEventListener('htmx:afterSwap', function() {
-                ensureBgVideoPlaying();
-                bindMenuHandlers();
+                rebindAllHandlers();
             });
 
             // Listen for cart updates
@@ -467,10 +502,31 @@
             });
         });
 
-        // Resume background video when page is restored from bfcache
-        window.addEventListener('pageshow', ensureBgVideoPlaying);
+        window.addEventListener('pageshow', function(event) {
+            // Обработка возврата из bfcache (кэш браузера)
+            if (event.persisted) {
+                rebindAllHandlers();
+            } else {
+                ensureBgVideoPlaying();
+            }
+        });
+
         document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) ensureBgVideoPlaying();
+            if (!document.hidden) {
+                ensureBgVideoPlaying();
+                // Небольшая задержка для повторной привязки после возврата на страницу
+                setTimeout(rebindAllHandlers, 100);
+            }
+        });
+
+        window.addEventListener('popstate', function() {
+            setTimeout(rebindAllHandlers, 50);
+        });
+
+        window.addEventListener('focus', function() {
+            ensureBgVideoPlaying();
+            setTimeout(rebindAllHandlers, 100);
+            
         });
 
         // Global function to update cart count
