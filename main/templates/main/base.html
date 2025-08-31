@@ -115,21 +115,21 @@
     </style>
 </head>
 
-    <body class="bg-black text-white relative">
-        {% if messages %}
-            <!-- Notification container -->
-            <div id="flash-messages" class="fixed top-4 right-4 space-y-2 z-50">
+<body class="bg-black text-white relative">
+    {% if messages %}
+        <!-- Notification container -->
+        <div id="flash-messages" class="fixed top-4 right-4 space-y-2 z-50">
             {% for message in messages %}
                 <div
-                class="flash-message transform translate-x-full opacity-0 transition-all duration-500 ease-out
-                        bg-black text-white px-4 py-2 rounded shadow"
+                    class="flash-message transform translate-x-full opacity-0 transition-all duration-500 ease-out
+                            bg-black text-white px-4 py-2 rounded shadow"
                 >
-                {{ message }}
+                    {{ message }}
                 </div>
             {% endfor %}
-            </div>
+        </div>
 
-            <script>
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const container = document.getElementById('flash-messages');
                 if (!container) return;
@@ -139,25 +139,24 @@
 
                 // Immediately after insertion, we make them move out from the right edge
                 setTimeout(() => {
-                messages.forEach(el => {
-                    el.classList.remove('translate-x-full', 'opacity-0');
-                    el.classList.add('translate-x-0', 'opacity-100');
-                });
+                    messages.forEach(el => {
+                        el.classList.remove('translate-x-full', 'opacity-0');
+                        el.classList.add('translate-x-0', 'opacity-100');
+                    });
                 }, 10);
 
                 // After 3 seconds - start the reverse animation of hiding
                 setTimeout(() => {
-                messages.forEach(el => {
-                    el.classList.remove('translate-x-0', 'opacity-100');
-                    el.classList.add('translate-x-full', 'opacity-0');
-                });
-                // After the animation is finished (duration=500ms) we remove the container from the DOM
-                setTimeout(() => container.remove(), 500);
+                    messages.forEach(el => {
+                        el.classList.remove('translate-x-0', 'opacity-100');
+                        el.classList.add('translate-x-full', 'opacity-0');
+                    });
+                    // After the animation is finished (duration=500ms) we remove the container from the DOM
+                    setTimeout(() => container.remove(), 500);
                 }, 3000);
             });
-            </script>
-        {% endif %}
-
+        </script>
+    {% endif %}
 
     <!-- Fixed background video via static/WhiteNoise -->
     <video id="bgVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" hx-preserve
@@ -174,149 +173,166 @@
         <!-- Mobile Menu -->
         <div id="mobileMenu"
             class="mobile-menu fixed top-0 left-0 w-80 h-full bg-black bg-opacity-90 z-50 md:hidden shadow-lg text-white">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-8">
-            <h2 class="text-lg font-bold tracking-tight">ENFANTS RICHES <br> DÉPRIMÉS</h2>
-            <button id="closeMenu" class="hamburger active">
-                <span></span><span></span><span></span>
-            </button>
-            </div>
-            <nav class="space-y-6">
-            <a href="{% url 'main:index' %}"
-                hx-get="{% url 'main:index' %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2">
-                HOME
-            </a>
-            {% for category in categories %}
-            <a href="{% url 'main:catalog' category.slug %}"
-                hx-get="{% url 'main:catalog' category.slug %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2 {% if current_category == category.slug %}active{% endif %}">
-                {{ category.name|upper }}
-            </a>
-            {% endfor %}
-            </nav>
-            <div class="mt-8 space-y-4">
-            <a href="#" class="block text-sm font-medium py-2">SEARCH</a>
-            <a href="{% url 'users:profile' %}"
-                hx-get="{% url 'users:profile' %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="block text-sm font-medium uppercase py-2">
-                ACCOUNT
-            </a>
-            <a href="#" id="mobileCart" class="block text-sm font-medium hover:text-gray-300 py-2">
-                CART (0)
-            </a>
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-lg font-bold tracking-tight">ENFANTS RICHES <br> DÉPRIMÉS</h2>
+                    <button id="closeMenu" class="hamburger active">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+                <nav class="space-y-6">
+                    <a href="{% url 'main:index' %}"
+                        hx-get="{% url 'main:index' %}"
+                        hx-target="#main-content" hx-push-url="true"
+                        class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2">
+                        HOME
+                    </a>
+                    {% for category in categories %}
+                        <a href="{% url 'main:catalog' category.slug %}"
+                            hx-get="{% url 'main:catalog' category.slug %}"
+                            hx-target="#main-content" hx-push-url="true"
+                            class="block text-lg font-medium hover:text-gray-300 border-b border-gray-700 py-2 {% if current_category == category.slug %}active{% endif %}">
+                            {{ category.name|upper }}
+                        </a>
+                    {% endfor %}
+                </nav>
+                <div class="mt-8 space-y-4">
+                    <a href="#" class="block text-sm font-medium py-2">SEARCH</a>
+                    <a href="{% url 'users:profile' %}"
+                        hx-get="{% url 'users:profile' %}"
+                        hx-target="#main-content" hx-push-url="true"
+                        class="block text-sm font-medium uppercase py-2">
+                        ACCOUNT
+                    </a>
+                    <a href="#" id="mobileCart" class="block text-sm font-medium hover:text-gray-300 py-2">
+                        CART (0)
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-        <!-- Header -->
-        <header class="sticky top-0 bg-black bg-opacity-45 text-white">
+    <!-- Header -->
+    <header class="sticky top-0 bg-black bg-opacity-45 text-white">
         <div class="mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-            <!-- Mobile Menu Button -->
-            <button id="menuToggle" class="hamburger md:hidden text-white">
-                <span></span><span></span><span></span>
-            </button>
+                <!-- Mobile Menu Button -->
+                <button id="menuToggle" class="hamburger md:hidden text-white">
+                    <span></span><span></span><span></span>
+                </button>
 
-            <!-- Logo -->
-            <div class="flex-shrink-0">
-                <a href="{% url 'main:index' %}"
-                hx-get="{% url 'main:index' %}"
-                hx-target="#main-content" hx-push-url="true">
-                <h1 class="text-sm sm:text-lg font-bold tracking-tight">
-                    ENFANTS RICHES <br> DÉPRIMÉS
-                </h1>
-                </a>
-            </div>
-
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex space-x-8">
-                {% for category in categories %}
-                <a href="{% url 'main:catalog' category.slug %}"
-                hx-get="{% url 'main:catalog' category.slug %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="nav-link text-sm font-medium hover:text-gray-300 {% if current_category == category.slug %}active{% endif %}">
-                {{ category.name|upper }}
-                </a>
-                {% endfor %}
-            </nav>
-
-            <!-- Right side links -->
-            <div class="hidden md:flex items-center space-x-6">
-                <div class="relative" id="mobile-search-wrapper">
-                    <button id="mobile-search-toggle" 
-                            hx-get="{% url 'main:catalog_all' %}?show_search=true" 
-                            hx-target="#mobile-search-wrapper" 
-                            hx-swap="innerHTML"
-                            class="text-sm font-medium uppercase hover:text-gray-300">
-                        SEARCH
-                    </button>
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="{% url 'main:index' %}"
+                        hx-get="{% url 'main:index' %}"
+                        hx-target="#main-content" hx-push-url="true">
+                        <h1 class="text-sm sm:text-lg font-bold tracking-tight">
+                            ENFANTS RICHES <br> DÉPRIMÉS
+                        </h1>
+                    </a>
                 </div>
-                <a href="#" 
-                    class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
-                </a>
-                <a href="{% url 'users:profile' %}"
-                    hx-get="{% url 'users:profile' %}"
-                    hx-target="#main-content" hx-push-url="true"
-                    class="text-sm font-medium uppercase hover:text-gray-300">
-                    ACCOUNT
-                </a>
-                <a href="{% url 'main:index' %}" id="desktopCart" class="text-sm font-medium hover:text-gray-300">
-                    CART (0)
-                </a>
-            </div>
 
-            <!-- Mobile Cart Icon -->
-            <div class="md:hidden">
-                <a href="#" id="mobileCartHeader" class="text-xs font-medium hover:text-gray-300">
-                CART (0)
-                </a>
-            </div>
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    {% for category in categories %}
+                        <a href="{% url 'main:catalog' category.slug %}"
+                            hx-get="{% url 'main:catalog' category.slug %}"
+                            hx-target="#main-content" hx-push-url="true"
+                            class="nav-link text-sm font-medium hover:text-gray-300 {% if current_category == category.slug %}active{% endif %}">
+                            {{ category.name|upper }}
+                        </a>
+                    {% endfor %}
+                </nav>
+
+                <!-- Right side links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="relative" id="mobile-search-wrapper">
+                        <button id="mobile-search-toggle" 
+                                hx-get="{% url 'main:catalog_all' %}?show_search=true" 
+                                hx-target="#mobile-search-wrapper" 
+                                hx-swap="innerHTML"
+                                class="text-sm font-medium uppercase hover:text-gray-300">
+                            SEARCH
+                        </button>
+                    </div>
+                    <a href="#" 
+                        class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                    </a>
+                    <a href="{% url 'users:profile' %}"
+                        hx-get="{% url 'users:profile' %}"
+                        hx-target="#main-content" hx-push-url="true"
+                        class="text-sm font-medium uppercase hover:text-gray-300">
+                        ACCOUNT
+                    </a>
+                    <a href="{% url 'main:index' %}" id="desktopCart" class="text-sm font-medium hover:text-gray-300">
+                        CART (0)
+                    </a>
+                </div>
+
+                <!-- Mobile Cart Icon -->
+                <div class="md:hidden">
+                    <a href="#" id="mobileCartHeader" class="text-xs font-medium hover:text-gray-300">
+                        CART (0)
+                    </a>
+                </div>
             </div>
         </div>
-        </header>
+    </header>
 
-        <!-- Cart container & HTMX loader -->
-        <div id="cart-container"></div>
-        <div class="htmx-indicator fixed top-0 left-0 w-full h-1 bg-white z-50"></div>
+    <!-- Cart container & HTMX loader -->
+    <div id="cart-container"></div>
+    <div class="htmx-indicator fixed top-0 left-0 w-full h-1 bg-white z-50"></div>
 
-        <!-- Main Content -->
-        <div id="main-content" hx-swap="innerHTML">
+    <!-- Main Content -->
+    <div id="main-content" hx-swap="innerHTML">
         {% block content %}
-        <!-- Default home content -->
-        <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center py-20">
-            <h2 class="text-4xl font-bold tracking-tight text-white mb-4">
-                ENFANTS RICHES DÉPRIMÉS
-            </h2>
-            <p class="text-lg text-gray-200 mb-8">
-                Select a category to browse our collection
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                {% for category in categories %}
-                <a href="{% url 'main:catalog' category.slug %}"
-                hx-get="{% url 'main:catalog' category.slug %}"
-                hx-target="#main-content" hx-push-url="true"
-                class="bg-black rounded-sm block p-8 bg-opacity-40 hover:bg-gray-200 hover:text-black hover:bg-opacity-50 hover:rounded-md transition-colors">
-                <h3 class="text-xl font-bold text-white">{{ category.name|upper }}</h3>
-                </a>
-                {% endfor %}
-            </div>
-            </div>
-        </main>
+            <!-- Default home content -->
+            <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="text-center py-20">
+                    <h2 class="text-4xl font-bold tracking-tight text-white mb-4">
+                        ENFANTS RICHES DÉPRIMÉS
+                    </h2>
+                    <p class="text-lg text-gray-200 mb-8">
+                        Select a category to browse our collection
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                        {% for category in categories %}
+                            <a href="{% url 'main:catalog' category.slug %}"
+                                hx-get="{% url 'main:catalog' category.slug %}"
+                                hx-target="#main-content" hx-push-url="true"
+                                class="bg-black rounded-sm block p-8 bg-opacity-40 hover:bg-gray-200 hover:text-black hover:bg-opacity-50 hover:rounded-md transition-colors">
+                                <h3 class="text-xl font-bold text-white">{{ category.name|upper }}</h3>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </main>
         {% endblock %}
     </div>
 
     <script>
         // Keep the background video always running (handles HTMX + iOS cases)
+        let navigationEntries = [];
+        let isBackNavigation = false;
+        
+        // Отслеживаем навигацию для детекции свайпа назад
+        if ('performance' in window && 'getEntriesByType' in performance) {
+            const observer = new PerformanceObserver((list) => {
+                const entries = list.getEntries();
+                entries.forEach(entry => {
+                    if (entry.type === 'navigate') {
+                        navigationEntries.push(entry);
+                    }
+                });
+            });
+            observer.observe({ entryTypes: ['navigation'] });
+        }
+
         function ensureBgVideoPlaying() {
             try {
                 const v = document.getElementById('bgVideo');
                 if (!v) return;
+                
                 // Принудительно устанавливаем все необходимые атрибуты для iOS
                 v.setAttribute('muted', '');
                 v.muted = true;
@@ -332,22 +348,51 @@
                     v.load();
                 }
                 
-                // Пытаемся запустить видео
-                if (v.paused) {
-                    const playPromise = v.play();
-                    if (playPromise && typeof playPromise.then === 'function') {
-                        playPromise.catch(() => {
-                            // Если автовоспроизведение заблокировано, пытаемся запустить при первом клике
-                            const startVideoOnInteraction = () => {
-                                v.play().catch(() => {});
-                                document.removeEventListener('touchstart', startVideoOnInteraction);
-                                document.removeEventListener('click', startVideoOnInteraction);
-                            };
-                            document.addEventListener('touchstart', startVideoOnInteraction, { once: true });
-                            document.addEventListener('click', startVideoOnInteraction, { once: true });
-                        });
+                const attemptPlay = () => {
+                    if (v.paused) {
+                        const playPromise = v.play();
+                        if (playPromise && typeof playPromise.then === 'function') {
+                            playPromise.catch(() => {
+                                // Симулируем пользовательское взаимодействие для iOS
+                                const simulateUserInteraction = () => {
+                                    // Создаем синтетическое событие клика
+                                    const clickEvent = new MouseEvent('click', {
+                                        bubbles: true,
+                                        cancelable: true,
+                                        view: window
+                                    });
+                                    document.body.dispatchEvent(clickEvent);
+                                    
+                                    // Пытаемся запустить видео после симуляции
+                                    setTimeout(() => {
+                                        v.play().catch(() => {});
+                                    }, 10);
+                                };
+                                
+                                // Немедленная попытка симуляции
+                                simulateUserInteraction();
+                                
+                                // Также устанавливаем обработчик на реальное взаимодействие
+                                const startVideoOnInteraction = () => {
+                                    v.play().catch(() => {});
+                                    document.removeEventListener('touchstart', startVideoOnInteraction);
+                                    document.removeEventListener('click', startVideoOnInteraction);
+                                    document.removeEventListener('touchend', startVideoOnInteraction);
+                                };
+                                document.addEventListener('touchstart', startVideoOnInteraction, { once: true });
+                                document.addEventListener('click', startVideoOnInteraction, { once: true });
+                                document.addEventListener('touchend', startVideoOnInteraction, { once: true });
+                            });
+                        }
                     }
-                }
+                };
+                
+                // Множественные попытки запуска
+                attemptPlay();
+                setTimeout(attemptPlay, 50);
+                setTimeout(attemptPlay, 200);
+                setTimeout(attemptPlay, 500);
+                
             } catch (_) { /* no-op */ }
         }
 
@@ -381,12 +426,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Ensure background video autoplays on first load
             ensureBgVideoPlaying();
-
-            // Дополнительная попытка запуска видео через небольшую задержку
+            
+            setTimeout(ensureBgVideoPlaying, 10);
             setTimeout(ensureBgVideoPlaying, 100);
+            setTimeout(ensureBgVideoPlaying, 300);
             setTimeout(ensureBgVideoPlaying, 500);
+            setTimeout(ensureBgVideoPlaying, 1000);
 
             // Mobile menu functionality
             const menuToggle = document.getElementById('menuToggle');
@@ -486,7 +532,6 @@
                 });
             }
             
-            
             document.addEventListener('htmx:historyRestore', function() {
                 rebindAllHandlers();
             });
@@ -503,30 +548,67 @@
         });
 
         window.addEventListener('pageshow', function(event) {
-            // Обработка возврата из bfcache (кэш браузера)
-            if (event.persisted) {
-                rebindAllHandlers();
-            } else {
-                ensureBgVideoPlaying();
+            // Детекция возврата назад через свайп или кнопку браузера
+            if (event.persisted || (performance.navigation && performance.navigation.type === 2)) {
+                isBackNavigation = true;
+                // Принудительная перезагрузка страницы при свайпе назад
+                if (event.persisted) {
+                    console.log('[v0] Detected back navigation, forcing page reload');
+                    window.location.reload();
+                    return;
+                }
             }
+            
+            rebindAllHandlers();
+            // Дополнительные попытки запуска видео после возврата на страницу
+            setTimeout(ensureBgVideoPlaying, 50);
+            setTimeout(ensureBgVideoPlaying, 200);
         });
-
+        
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 ensureBgVideoPlaying();
                 // Небольшая задержка для повторной привязки после возврата на страницу
                 setTimeout(rebindAllHandlers, 100);
+                setTimeout(ensureBgVideoPlaying, 200);
+                setTimeout(ensureBgVideoPlaying, 500);
             }
         });
 
-        window.addEventListener('popstate', function() {
+        window.addEventListener('popstate', function(event) {
+            isBackNavigation = true;
+            console.log('[v0] Popstate detected, checking for back navigation');
+            
+            // Проверяем, был ли это свайп назад
+            if (event.state === null || (history.state && history.state.htmx)) {
+                console.log('[v0] Back navigation detected, forcing reload');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 50);
+                return;
+            }
+            
             setTimeout(rebindAllHandlers, 50);
+            setTimeout(ensureBgVideoPlaying, 100);
         });
 
         window.addEventListener('focus', function() {
             ensureBgVideoPlaying();
             setTimeout(rebindAllHandlers, 100);
-            
+            setTimeout(ensureBgVideoPlaying, 200);
+        });
+
+        document.addEventListener('touchstart', function() {
+            ensureBgVideoPlaying();
+        }, { once: true });
+
+        ['click', 'touchstart', 'touchend', 'keydown'].forEach(eventType => {
+            document.addEventListener(eventType, function() {
+                const v = document.getElementById('bgVideo');
+                if (v && v.paused) {
+                    v.play().catch(() => {});
+                }
+            }, { once: true });
         });
 
         // Global function to update cart count
