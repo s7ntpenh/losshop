@@ -160,7 +160,7 @@
 
 
     <!-- Fixed background video via static/WhiteNoise -->
-    <video id="bgVideo" autoplay muted loop playsinline webkit-playsinline preload="auto"
+    <video id="bgVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" hx-preserve
             class="fixed inset-0 w-screen h-screen object-cover z-[-1]">
         <source src="{% static 'products/main/bg-vid3.mp4' %}" type="video/mp4">
         Your browser does not support the video tag.
@@ -312,24 +312,28 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ensure background video autoplays on mobile (iOS/Safari quirks)
+        // Keep the background video always running (handles HTMX + iOS cases)
+        function ensureBgVideoPlaying() {
             try {
                 const v = document.getElementById('bgVideo');
-                if (v) {
-                    // Inline + muted must be set before play() on iOS
-                    v.setAttribute('muted', '');
-                    v.muted = true;
-                    v.setAttribute('playsinline', '');
-                    v.setAttribute('webkit-playsinline', '');
-                    v.playsInline = true;
-                    // Attempt to play; ignore failures (e.g., low power mode)
-                    const playPromise = v.play();
-                    if (playPromise && typeof playPromise.then === 'function') {
-                        playPromise.catch(() => {/* no-op */});
-                    }
+                if (!v) return;
+                v.setAttribute('muted', '');
+                v.muted = true;
+                v.setAttribute('playsinline', '');
+                v.setAttribute('webkit-playsinline', '');
+                v.playsInline = true;
+                v.setAttribute('autoplay', '');
+                v.setAttribute('loop', '');
+                if (v.paused) {
+                    const p = v.play();
+                    if (p && typeof p.then === 'function') p.catch(() => {});
                 }
-            } catch (_) { /* ignore */ }
+            } catch (_) { /* no-op */ }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure background video autoplays on first load
+            ensureBgVideoPlaying();
 
             // Mobile menu functionality
             const menuToggle = document.getElementById('menuToggle');
@@ -338,22 +342,38 @@
             const overlay = document.getElementById('overlay');
     
             function openMobileMenu() {
+                if (!mobileMenu || !overlay || !menuToggle) return;
                 mobileMenu.classList.add('open');
                 overlay.classList.add('active');
                 menuToggle.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
-    
+
             function closeMobileMenu() {
+                if (!mobileMenu || !overlay || !menuToggle) return;
                 mobileMenu.classList.remove('open');
                 overlay.classList.remove('active');
                 menuToggle.classList.remove('active');
                 document.body.style.overflow = '';
             }
-    
-            menuToggle.addEventListener('click', openMobileMenu);
-            closeMenu.addEventListener('click', closeMobileMenu);
-            overlay.addEventListener('click', closeMobileMenu);
+
+            function bindMenuHandlers() {
+                if (menuToggle && !menuToggle.dataset.bound) {
+                    menuToggle.addEventListener('click', openMobileMenu);
+                    menuToggle.dataset.bound = '1';
+                }
+                if (closeMenu && !closeMenu.dataset.bound) {
+                    closeMenu.addEventListener('click', closeMobileMenu);
+                    closeMenu.dataset.bound = '1';
+                }
+                if (overlay && !overlay.dataset.bound) {
+                    overlay.addEventListener('click', closeMobileMenu);
+                    overlay.dataset.bound = '1';
+                }
+            }
+
+            // Initial binding for menu controls
+            bindMenuHandlers();
     
             // Close mobile menu after navigation
             document.addEventListener('htmx:afterRequest', function() {
@@ -391,24 +411,30 @@
             }
     
             [desktopCart, mobileCart, mobileCartHeader].forEach(cartLink => {
-                if (cartLink) {
+                if (cartLink && !cartLink.dataset.bound) {
                     cartLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         openCart();
                     });
+                    cartLink.dataset.bound = '1';
                 }
             });
     
             // Close mobile menu on window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 768) {
-                    closeMobileMenu();
-                }
-            });
+            if (!window.__menuResizeBound) {
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        closeMobileMenu();
+                    }
+                });
+                window.__menuResizeBound = true;
+            }
     
             // Update active navigation links after HTMX requests
             document.addEventListener('htmx:afterSettle', function() {
                 updateActiveNavLinks();
+                ensureBgVideoPlaying();
+                bindMenuHandlers();
             });
     
             function updateActiveNavLinks() {
@@ -423,6 +449,16 @@
                 });
             }
             
+            // Keep UI intact when navigating browser history with HTMX
+            document.addEventListener('htmx:historyRestore', function() {
+                ensureBgVideoPlaying();
+                bindMenuHandlers();
+            });
+            document.addEventListener('htmx:afterSwap', function() {
+                ensureBgVideoPlaying();
+                bindMenuHandlers();
+            });
+
             // Listen for cart updates
             document.addEventListener('cartUpdated', function(e) {
                 if (e.detail && e.detail.total_items !== undefined) {
@@ -430,7 +466,13 @@
                 }
             });
         });
-        
+
+        // Resume background video when page is restored from bfcache
+        window.addEventListener('pageshow', ensureBgVideoPlaying);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) ensureBgVideoPlaying();
+        });
+
         // Global function to update cart count
         window.updateHeaderCartCount = function(count) {
             const desktopCart = document.getElementById('desktopCart');
