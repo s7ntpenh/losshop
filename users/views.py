@@ -21,7 +21,10 @@ def register(request):
             return redirect('main:index')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'users/register.html', {'form': form})
+
+    if request.headers.get("HX-Request"):
+        return TemplateResponse(request, "users/register.html", {'form': form})
+    return render(request, "users/register_page.html", {'form': form})
 
 
 def login_view(request):
@@ -33,7 +36,10 @@ def login_view(request):
             return redirect('main:index')
     else:
         form = CustomUserLoginForm()
-    return render(request, 'users/login.html', {'form': form})
+
+    if request.headers.get("HX-Request"):
+        return TemplateResponse(request, "users/login.html", {"form": form})
+    return render(request, "users/login_page.html", {"form": form})
     
 
 @login_required(login_url='/users/login')
